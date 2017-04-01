@@ -68,4 +68,18 @@ public class TransactionsController {
 		incomesAndExpensesByMonth.setIncomesAndExpensesByMonth(stringifiedMonthlyIncomesAndExpenses);
 		return incomesAndExpensesByMonth;
 	}
+	
+	@RequestMapping("/getNonDonutIncomeAndExpensesSummary")
+	public IncomesAndExpensesByMonth getNonDonutIncomeAndExpensesSummary(RestTemplate restTemplate) {
+		log.info("TransactionsController.getNonDonutIncomeAndExpensesSummary() requested");
+		List<Transaction> transactions = processor.retrieveAllTransactions(restTemplate);
+		//Filter out Donut transactions
+		transactions = SortingUtilities.filterTransactions(transactions, Arrays.asList("Krispy Kreme Donuts", "DUNKIN #336784"));
+		Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses = processor.calculateMonthlyIncomesAndExpenses(transactions);
+		Map<YearMonth, IncomeAndExpenseStrings> stringifiedMonthlyIncomesAndExpenses = processor.convertIncomeAndExpenseMap(monthlyIncomesAndExpenses);
+		stringifiedMonthlyIncomesAndExpenses = SortingUtilities.sortIncomesAndExpensesMap(stringifiedMonthlyIncomesAndExpenses);
+		IncomesAndExpensesByMonth incomesAndExpensesByMonth = new IncomesAndExpensesByMonth();
+		incomesAndExpensesByMonth.setIncomesAndExpensesByMonth(stringifiedMonthlyIncomesAndExpenses);
+		return incomesAndExpensesByMonth;
+	}
 }
