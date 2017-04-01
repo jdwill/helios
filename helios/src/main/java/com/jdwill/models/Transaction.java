@@ -18,7 +18,7 @@ public class Transaction {
 	private String is_pending;
 	@JsonProperty("transaction-time")
 	private String transaction_time;
-	private Long amount;
+	private Double amount;
 	@JsonProperty("previous-transaction-id")
 	private String previous_transaction_id;
 	private String categorization;
@@ -29,7 +29,7 @@ public class Transaction {
 	@JsonProperty("payee-name-only-for-testing")
 	private String payee_name_only_for_testing;
 	@JsonProperty("clear-date")
-	private Long clear_date;
+	private Double clear_date;
 	
 	public String getTransaction_id() {
 		return transaction_id;
@@ -67,10 +67,10 @@ public class Transaction {
 	public void setTransaction_time(String transaction_time) {
 		this.transaction_time = transaction_time;
 	}
-	public Long getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
-	public void setAmount(Long amount) {
+	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
 	public String getPrevious_transaction_id() {
@@ -97,10 +97,10 @@ public class Transaction {
 	public void setPayee_name_only_for_testing(String payee_name_only_for_testing) {
 		this.payee_name_only_for_testing = payee_name_only_for_testing;
 	}
-	public Long getClear_date() {
+	public Double getClear_date() {
 		return clear_date;
 	}
-	public void setClear_date(Long clear_date) {
+	public void setClear_date(Double clear_date) {
 		this.clear_date = clear_date;
 	}
 	

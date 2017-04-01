@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.client.RestTemplate;
 
+import com.jdwill.models.IncomesAndExpensesByMonth;
 import com.jdwill.models.Transaction;
 
 public interface TransactionsProcessor {
@@ -14,4 +15,10 @@ public interface TransactionsProcessor {
 	 * @return				A list of all the user's available transactions.
 	 */
 	public List<Transaction> retrieveAllTransactions(RestTemplate restTemplate);
+	
+	/**
+	 * Sorts the user's transactions and reports the results in terms of income and expenses by month.
+	 * @return
+	 */
+	public IncomesAndExpensesByMonth calculateMonthlyIncomesAndExpenses(List<Transaction> transactions);
 }

@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jdwill.components.TransactionsProcessor;
 import com.jdwill.models.CommonArguments;
+import com.jdwill.models.IncomesAndExpensesByMonth;
 import com.jdwill.models.Transaction;
 import com.jdwill.models.TransactionsResponse;
 
@@ -46,9 +47,10 @@ public class TransactionsController {
 	}
 	
 	@RequestMapping("/getIncomeAndExpensesSummary")
-	public List getIncomeAndExpensesSummary(RestTemplate restTemplate) {
-		log.info("TransactionsController.getIncomAndExpensesSummary() requested");
+	public IncomesAndExpensesByMonth getIncomeAndExpensesSummary(RestTemplate restTemplate) {
+		log.info("TransactionsController.getIncomeAndExpensesSummary() requested");
 		List<Transaction> transactions = processor.retrieveAllTransactions(restTemplate);
-		return null;
+		IncomesAndExpensesByMonth incomesAndExpensesByMonth = processor.calculateMonthlyIncomesAndExpenses(transactions);
+		return incomesAndExpensesByMonth;
 	}
 }

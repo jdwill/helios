@@ -2,7 +2,11 @@ package com.jdwill.components;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.time.YearMonth;
+import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpEntity;
@@ -17,6 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jdwill.models.CommonArguments;
+import com.jdwill.models.IncomeAndExpenseSummary;
+import com.jdwill.models.IncomesAndExpensesByMonth;
 import com.jdwill.models.Transaction;
 import com.jdwill.models.TransactionsResponse;
 
@@ -52,4 +58,67 @@ public class TransactionsProcessorImpl implements TransactionsProcessor {
 		return transactions;
 	}
 
+	@Override
+	public IncomesAndExpensesByMonth calculateMonthlyIncomesAndExpenses(List<Transaction> transactions) {
+		int year = -1;
+		int month = -1;
+		Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses = new HashMap<YearMonth, IncomeAndExpenseSummary>();
+		for(Transaction transaction : transactions) {
+			String transactionTime = transaction.getTransaction_time().substring(0, 7);
+			YearMonth yearMonth = (transactionTime != null) ? YearMonth.parse(transactionTime) : null;
+			Double amount = transaction.getAmount();
+			monthlyIncomesAndExpenses = addAmmount(monthlyIncomesAndExpenses, yearMonth, amount);
+		}
+		IncomesAndExpensesByMonth incomesAndExpensesByMonth = new IncomesAndExpensesByMonth();
+		incomesAndExpensesByMonth.setIncomesAndExpensesByMonth(monthlyIncomesAndExpenses);
+		return incomesAndExpensesByMonth;
+	}
+	
+	private Map<YearMonth, IncomeAndExpenseSummary> addAmmount(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses, YearMonth yearMonth, Double amount) {
+		if(yearMonth != null && amount != null) {
+			BigDecimal convertedAmount = convertCentocents(amount).abs();
+			//If the key already exists, update the income or expense
+			if(monthlyIncomesAndExpenses.containsKey(yearMonth)) {
+				IncomeAndExpenseSummary summary = monthlyIncomesAndExpenses.get(yearMonth);
+				//If amount is income
+				if(amount >= 0) {
+					BigDecimal income = summary.getIncome().add(convertedAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
+					summary.setIncome(income);
+				}
+				//If amount is an expense 
+				else {
+					BigDecimal spent = summary.getSpent().add(convertedAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
+					summary.setSpent(spent);
+				}
+				monthlyIncomesAndExpenses.put(yearMonth, summary);
+			}
+			//If the key does not yet exist, add it and insert the dependent values
+			else {
+				IncomeAndExpenseSummary summary;
+				//If amount is income
+				if(amount >= 0) {
+					summary = new IncomeAndExpenseSummary(
+							new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP),
+							convertedAmount
+							);
+				}
+				//If amount is an expense
+				else {
+					summary = new IncomeAndExpenseSummary(
+							convertedAmount,
+							new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP)
+							);
+				}
+				//Add the new monthly tracking values to the collection
+				monthlyIncomesAndExpenses.put(yearMonth, summary);
+			}
+		}
+		return monthlyIncomesAndExpenses;
+	}
+	
+	private BigDecimal convertCentocents(Double amount) {
+		BigDecimal convertedAmount = new BigDecimal(amount).setScale(2, BigDecimal.ROUND_HALF_UP);
+		convertedAmount = convertedAmount.divide(new BigDecimal(10000)).setScale(2, BigDecimal.ROUND_HALF_UP);
+		return convertedAmount;
+	}
 }
