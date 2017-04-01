@@ -3,8 +3,10 @@ package com.jdwill.components;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.time.YearMonth;
 import java.math.BigDecimal;
 
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jdwill.models.CommonArguments;
+import com.jdwill.models.IncomeAndExpenseStrings;
 import com.jdwill.models.IncomeAndExpenseSummary;
 import com.jdwill.models.IncomesAndExpensesByMonth;
 import com.jdwill.models.Transaction;
@@ -59,7 +62,7 @@ public class TransactionsProcessorImpl implements TransactionsProcessor {
 	}
 
 	@Override
-	public IncomesAndExpensesByMonth calculateMonthlyIncomesAndExpenses(List<Transaction> transactions) {
+	public Map<YearMonth, IncomeAndExpenseSummary> calculateMonthlyIncomesAndExpenses(List<Transaction> transactions) {
 		int year = -1;
 		int month = -1;
 		Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses = new HashMap<YearMonth, IncomeAndExpenseSummary>();
@@ -69,9 +72,9 @@ public class TransactionsProcessorImpl implements TransactionsProcessor {
 			Double amount = transaction.getAmount();
 			monthlyIncomesAndExpenses = addAmmount(monthlyIncomesAndExpenses, yearMonth, amount);
 		}
-		IncomesAndExpensesByMonth incomesAndExpensesByMonth = new IncomesAndExpensesByMonth();
-		incomesAndExpensesByMonth.setIncomesAndExpensesByMonth(monthlyIncomesAndExpenses);
-		return incomesAndExpensesByMonth;
+		//IncomesAndExpensesByMonth incomesAndExpensesByMonth = new IncomesAndExpensesByMonth();
+		//incomesAndExpensesByMonth.setIncomesAndExpensesByMonth(monthlyIncomesAndExpenses);
+		return monthlyIncomesAndExpenses;
 	}
 	
 	private Map<YearMonth, IncomeAndExpenseSummary> addAmmount(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses, YearMonth yearMonth, Double amount) {
@@ -120,5 +123,19 @@ public class TransactionsProcessorImpl implements TransactionsProcessor {
 		BigDecimal convertedAmount = new BigDecimal(amount).setScale(2, BigDecimal.ROUND_HALF_UP);
 		convertedAmount = convertedAmount.divide(new BigDecimal(10000)).setScale(2, BigDecimal.ROUND_HALF_UP);
 		return convertedAmount;
+	}
+	
+	@Override
+	public Map<YearMonth, IncomeAndExpenseStrings> convertIncomeAndExpenseMap(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses) {
+		Map<YearMonth, IncomeAndExpenseStrings> convertedMap = new HashMap<YearMonth, IncomeAndExpenseStrings>();
+		Iterator<Entry<YearMonth, IncomeAndExpenseSummary>> iterator = monthlyIncomesAndExpenses.entrySet().iterator();
+		while(iterator.hasNext()) {
+			Entry<YearMonth, IncomeAndExpenseSummary> entry = iterator.next();
+			IncomeAndExpenseSummary incomeAndExpense = entry.getValue();
+			String spent = "$" + incomeAndExpense.getSpent().toString();
+			String income = "$" + incomeAndExpense.getIncome().toString();
+			convertedMap.put(entry.getKey(), new IncomeAndExpenseStrings(spent, income));
+		}
+		return convertedMap;
 	}
 }

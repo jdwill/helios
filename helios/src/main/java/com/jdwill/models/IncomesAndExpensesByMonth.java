@@ -6,13 +6,13 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 
 public class IncomesAndExpensesByMonth {
-	private Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses;
+	private Map<YearMonth, IncomeAndExpenseStrings> monthlyIncomesAndExpenses;
 
 	@JsonAnyGetter
-	public Map<YearMonth, IncomeAndExpenseSummary> getIncomesAndExpensesByMonth() {
+	public Map<YearMonth, IncomeAndExpenseStrings> getIncomesAndExpensesByMonth() {
 		return monthlyIncomesAndExpenses;
 	}
-	public void setIncomesAndExpensesByMonth(Map<YearMonth, IncomeAndExpenseSummary> incomesAndExpensesByMonth) {
+	public void setIncomesAndExpensesByMonth(Map<YearMonth, IncomeAndExpenseStrings> incomesAndExpensesByMonth) {
 		this.monthlyIncomesAndExpenses = incomesAndExpensesByMonth;
 	}
 	
