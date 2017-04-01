@@ -1,18 +1,17 @@
 package com.jdwill.models;
 
-import java.time.YearMonth;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 
 public class IncomesAndExpensesByMonth {
-	private Map<YearMonth, IncomeAndExpenseStrings> monthlyIncomesAndExpenses;
+	private Map<String, IncomeAndExpenseStrings> monthlyIncomesAndExpenses;
 
 	@JsonAnyGetter
-	public Map<YearMonth, IncomeAndExpenseStrings> getIncomesAndExpensesByMonth() {
+	public Map<String, IncomeAndExpenseStrings> getIncomesAndExpensesByMonth() {
 		return monthlyIncomesAndExpenses;
 	}
-	public void setIncomesAndExpensesByMonth(Map<YearMonth, IncomeAndExpenseStrings> incomesAndExpensesByMonth) {
+	public void setIncomesAndExpensesByMonth(Map<String, IncomeAndExpenseStrings> incomesAndExpensesByMonth) {
 		this.monthlyIncomesAndExpenses = incomesAndExpensesByMonth;
 	}
 	

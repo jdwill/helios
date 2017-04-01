@@ -1,6 +1,5 @@
 package com.jdwill.utilities;
 
-import java.time.YearMonth;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,10 +12,10 @@ import com.jdwill.models.Transaction;
 
 public class SortingUtilities {
 
-	public static Map<YearMonth, IncomeAndExpenseStrings> sortIncomesAndExpensesMap(Map<YearMonth, IncomeAndExpenseStrings> incomesAndExpenses) {
-		Map<YearMonth, IncomeAndExpenseStrings> sortedIncomesAndExpenses = new LinkedHashMap<YearMonth, IncomeAndExpenseStrings>();
+	public static Map<String, IncomeAndExpenseStrings> sortIncomesAndExpensesMap(Map<String, IncomeAndExpenseStrings> incomesAndExpenses) {
+		Map<String, IncomeAndExpenseStrings> sortedIncomesAndExpenses = new LinkedHashMap<String, IncomeAndExpenseStrings>();
 		incomesAndExpenses.entrySet().stream()
-        .sorted(Map.Entry.<YearMonth, IncomeAndExpenseStrings>comparingByKey())
+        .sorted(Map.Entry.<String, IncomeAndExpenseStrings>comparingByKey())
         .forEachOrdered(x -> sortedIncomesAndExpenses.put(x.getKey(), x.getValue()));
 		return sortedIncomesAndExpenses;
 	}

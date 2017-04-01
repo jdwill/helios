@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.jdwill.models.IncomeAndExpenseStrings;
 import com.jdwill.models.IncomeAndExpenseSummary;
-import com.jdwill.models.IncomesAndExpensesByMonth;
 import com.jdwill.models.Transaction;
 
 public interface TransactionsProcessor {
@@ -32,5 +31,20 @@ public interface TransactionsProcessor {
 	 * @param monthlyIncomesAndExpenses	A map with BigDecimals in the value objects
 	 * @return							A map with Strings in the value objects prefixed with $
 	 */
-	public Map<YearMonth, IncomeAndExpenseStrings> convertIncomeAndExpenseMap(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses);
+	public Map<String, IncomeAndExpenseStrings> convertIncomeAndExpenseMap(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses);
+	
+	/**
+	 * Calculates the user's average monthly income and expenses.
+	 * @param monthlyIncomesAndExpenses	The user's monthly income and expenses organized by month.
+	 * @return							An object representing the user's average monthly income and expenses.
+	 */
+	public IncomeAndExpenseSummary calculateAverageIncomeAndExpenses(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses);
+	
+	/**
+	 * Adds the average monthly income and expenses to the user's map of incomes and expenses organized by month.
+	 * @param monthlyIncomesAndExpenses	A map of the user's income and expenses by month.
+	 * @param averageIncomeAndExpense	The calculated average user's income and expenses based on historical data.
+	 * @return							A map of the user's income and expenses by month appended with the average monthly income and expenses.
+	 */
+	public Map<String, IncomeAndExpenseStrings> addAverageMonthlyIncomeAndExpense(Map<String, IncomeAndExpenseStrings> monthlyIncomesAndExpenses, IncomeAndExpenseSummary averageIncomeAndExpense);
 }

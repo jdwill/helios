@@ -60,9 +60,16 @@ public class TransactionsController {
 	@RequestMapping("/getIncomeAndExpensesSummary")
 	public IncomesAndExpensesByMonth getIncomeAndExpensesSummary(RestTemplate restTemplate) {
 		log.info("TransactionsController.getIncomeAndExpensesSummary() requested");
+		//Get all the transactions.
 		List<Transaction> transactions = processor.retrieveAllTransactions(restTemplate);
+		//Sort by month and income/expense type.
 		Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses = processor.calculateMonthlyIncomesAndExpenses(transactions);
-		Map<YearMonth, IncomeAndExpenseStrings> stringifiedMonthlyIncomesAndExpenses = processor.convertIncomeAndExpenseMap(monthlyIncomesAndExpenses);
+		//Calculate the user's average monthly income and expenses.
+		IncomeAndExpenseSummary averageIncomeAndExpense = processor.calculateAverageIncomeAndExpenses(monthlyIncomesAndExpenses);
+		//Convert the data types to a more presentable form.
+		Map<String, IncomeAndExpenseStrings> stringifiedMonthlyIncomesAndExpenses = processor.convertIncomeAndExpenseMap(monthlyIncomesAndExpenses);
+		//Add the average income and expense.
+		stringifiedMonthlyIncomesAndExpenses = processor.addAverageMonthlyIncomeAndExpense(stringifiedMonthlyIncomesAndExpenses, averageIncomeAndExpense);
 		stringifiedMonthlyIncomesAndExpenses = SortingUtilities.sortIncomesAndExpensesMap(stringifiedMonthlyIncomesAndExpenses);
 		IncomesAndExpensesByMonth incomesAndExpensesByMonth = new IncomesAndExpensesByMonth();
 		incomesAndExpensesByMonth.setIncomesAndExpensesByMonth(stringifiedMonthlyIncomesAndExpenses);
@@ -72,11 +79,18 @@ public class TransactionsController {
 	@RequestMapping("/getNonDonutIncomeAndExpensesSummary")
 	public IncomesAndExpensesByMonth getNonDonutIncomeAndExpensesSummary(RestTemplate restTemplate) {
 		log.info("TransactionsController.getNonDonutIncomeAndExpensesSummary() requested");
+		//Get all the transactions.
 		List<Transaction> transactions = processor.retrieveAllTransactions(restTemplate);
 		//Filter out Donut transactions
 		transactions = SortingUtilities.filterTransactions(transactions, Arrays.asList("Krispy Kreme Donuts", "DUNKIN #336784"));
+		//Sort by month and income/expense type.
 		Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses = processor.calculateMonthlyIncomesAndExpenses(transactions);
-		Map<YearMonth, IncomeAndExpenseStrings> stringifiedMonthlyIncomesAndExpenses = processor.convertIncomeAndExpenseMap(monthlyIncomesAndExpenses);
+		//Calculate the user's average monthly income and expenses.
+		IncomeAndExpenseSummary averageIncomeAndExpense = processor.calculateAverageIncomeAndExpenses(monthlyIncomesAndExpenses);
+		//Convert the data types to a more presentable form.
+		Map<String, IncomeAndExpenseStrings> stringifiedMonthlyIncomesAndExpenses = processor.convertIncomeAndExpenseMap(monthlyIncomesAndExpenses);
+		//Add the average income and expense.
+		stringifiedMonthlyIncomesAndExpenses = processor.addAverageMonthlyIncomeAndExpense(stringifiedMonthlyIncomesAndExpenses, averageIncomeAndExpense);
 		stringifiedMonthlyIncomesAndExpenses = SortingUtilities.sortIncomesAndExpensesMap(stringifiedMonthlyIncomesAndExpenses);
 		IncomesAndExpensesByMonth incomesAndExpensesByMonth = new IncomesAndExpensesByMonth();
 		incomesAndExpensesByMonth.setIncomesAndExpensesByMonth(stringifiedMonthlyIncomesAndExpenses);

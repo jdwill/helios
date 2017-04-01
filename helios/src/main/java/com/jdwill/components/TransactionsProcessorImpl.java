@@ -126,16 +126,44 @@ public class TransactionsProcessorImpl implements TransactionsProcessor {
 	}
 	
 	@Override
-	public Map<YearMonth, IncomeAndExpenseStrings> convertIncomeAndExpenseMap(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses) {
-		Map<YearMonth, IncomeAndExpenseStrings> convertedMap = new HashMap<YearMonth, IncomeAndExpenseStrings>();
+	public Map<String, IncomeAndExpenseStrings> convertIncomeAndExpenseMap(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses) {
+		Map<String, IncomeAndExpenseStrings> convertedMap = new HashMap<String, IncomeAndExpenseStrings>();
 		Iterator<Entry<YearMonth, IncomeAndExpenseSummary>> iterator = monthlyIncomesAndExpenses.entrySet().iterator();
 		while(iterator.hasNext()) {
 			Entry<YearMonth, IncomeAndExpenseSummary> entry = iterator.next();
 			IncomeAndExpenseSummary incomeAndExpense = entry.getValue();
 			String spent = "$" + incomeAndExpense.getSpent().toString();
 			String income = "$" + incomeAndExpense.getIncome().toString();
-			convertedMap.put(entry.getKey(), new IncomeAndExpenseStrings(spent, income));
+			convertedMap.put(entry.getKey().toString(), new IncomeAndExpenseStrings(spent, income));
 		}
 		return convertedMap;
+	}
+	
+	@Override
+	public IncomeAndExpenseSummary calculateAverageIncomeAndExpenses(Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses) {
+		//TODO For a more accurate average, I should probably exclude the last month.
+		BigDecimal numberOfMonths = new BigDecimal(monthlyIncomesAndExpenses.size()).setScale(0, BigDecimal.ROUND_HALF_UP);
+		BigDecimal totalIncome = new BigDecimal(0);
+		BigDecimal totalExpenses = new BigDecimal(0);
+		Iterator<Entry<YearMonth, IncomeAndExpenseSummary>> iterator = monthlyIncomesAndExpenses.entrySet().iterator();
+		while(iterator.hasNext()) {
+			Entry<YearMonth, IncomeAndExpenseSummary> entry = iterator.next();
+			IncomeAndExpenseSummary incomeAndExpense = entry.getValue();
+			totalIncome = totalIncome.add(incomeAndExpense.getIncome()).setScale(2, BigDecimal.ROUND_HALF_UP);
+			totalExpenses = totalExpenses.add(incomeAndExpense.getSpent()).setScale(2, BigDecimal.ROUND_HALF_UP);
+		}
+		BigDecimal averageIncome = totalIncome.divide(numberOfMonths, BigDecimal.ROUND_HALF_UP).setScale(2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal averageExpenses = totalExpenses.divide(numberOfMonths, BigDecimal.ROUND_HALF_UP).setScale(2, BigDecimal.ROUND_HALF_UP);
+		IncomeAndExpenseSummary averageIncomeAndExpense = new IncomeAndExpenseSummary(averageExpenses, averageIncome);
+		return averageIncomeAndExpense;
+	}
+	
+	@Override
+	public Map<String, IncomeAndExpenseStrings> addAverageMonthlyIncomeAndExpense(Map<String, IncomeAndExpenseStrings> monthlyIncomesAndExpenses, IncomeAndExpenseSummary averageIncomeAndExpense) {
+		String averageIncome = "$" + averageIncomeAndExpense.getIncome().toString();
+		String averageExpenses = "$" + averageIncomeAndExpense.getSpent().toString();
+		IncomeAndExpenseStrings incomeAndExpense = new IncomeAndExpenseStrings(averageExpenses, averageIncome);
+		monthlyIncomesAndExpenses.put("average", incomeAndExpense);
+		return monthlyIncomesAndExpenses;
 	}
 }
