@@ -13,11 +13,18 @@ import com.jdwill.models.Transaction;
 public interface TransactionsProcessor {
 
 	/**
-	 * Retrieves all the user's available transactions from LevelMoney GetAllTransactions API.
+	 * Retrieves all the user's available transactions from LevelMoney's GetAllTransactions API.
 	 * @param restTemplate	A Spring RestTemplate that will be used to call LevelMoney API.
 	 * @return				A list of all the user's available transactions.
 	 */
 	public List<Transaction> retrieveAllTransactions(RestTemplate restTemplate);
+	
+	/**
+	 * Retrieves the user's predicted transactions from LevelMoney's GetProjectedTransactionsForMonth API.
+	 * @param restTemplate	A Spring RestTemplate that will be used to call LevelMoney API.
+	 * @return				A list of all the user's predicted transactions for this month.
+	 */
+	public List<Transaction> seeCrystalBall(RestTemplate restTemplate, double year, double month);
 	
 	/**
 	 * Sorts the user's transactions and reports the results in terms of income and expenses by month.

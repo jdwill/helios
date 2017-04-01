@@ -23,15 +23,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jdwill.models.CommonArguments;
+import com.jdwill.models.CrystalBallArguments;
 import com.jdwill.models.IncomeAndExpenseStrings;
 import com.jdwill.models.IncomeAndExpenseSummary;
-import com.jdwill.models.IncomesAndExpensesByMonth;
 import com.jdwill.models.Transaction;
 import com.jdwill.models.TransactionsResponse;
 
 @Component
 public class TransactionsProcessorImpl implements TransactionsProcessor {
 	String getAllTransactionsUrl = "https://2016.api.levelmoney.com/api/v2/core/get-all-transactions";
+	String getProjectedTransactionsForMonth = "https://2016.api.levelmoney.com/api/v2/core/projected-transactions-for-month";
 	Logger log = Logger.getLogger(TransactionsProcessorImpl.class);
 
 	@Override
@@ -52,6 +53,33 @@ public class TransactionsProcessorImpl implements TransactionsProcessor {
 			HttpEntity<String> entity = new HttpEntity<String>(json, headers);
 			ResponseEntity<TransactionsResponse> response = restTemplate.exchange(getAllTransactionsUrl, HttpMethod.POST, entity, TransactionsResponse.class);
 			log.debug("Received transactions; first transaction is: " + response.getBody().getTransactions().get(0).toString());
+			transactions = response.getBody().getTransactions();
+		}
+		catch(JsonProcessingException e) {
+			log.error("An exception occured while retrieving user's transactions (TransactionsProcessorImpl.retrieveAllTransactions)...", e);
+			transactions = new ArrayList<Transaction>(Arrays.asList(new Transaction()));
+		}
+		return transactions;
+	}
+	
+	@Override
+	public List<Transaction> seeCrystalBall(RestTemplate restTemplate, double year, double month) {
+		List<Transaction> transactions = null;
+		log.info("TransactionsController.seeCrystalBall() called...");
+		try {
+			CrystalBallArguments request = new CrystalBallArguments(year, month);
+			//Use Jackson marshaling to get a String representation of the JSON.
+			ObjectMapper mapper = new ObjectMapper();
+			String json = mapper.writeValueAsString(request);
+			log.debug("Json for LevelMoney.GetAllTransactions is: " + json);
+			//Add the required HTTP headers
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			HttpEntity<String> entity = new HttpEntity<String>(json, headers);
+			ResponseEntity<TransactionsResponse> response = restTemplate.exchange(getProjectedTransactionsForMonth, HttpMethod.POST, entity, TransactionsResponse.class);
+			//log.debug("Received transactions; first transaction is: " + response.getBody().getTransactions().get(0).toString());
+			log.debug(response.getBody().toString());
 			transactions = response.getBody().getTransactions();
 		}
 		catch(JsonProcessingException e) {
