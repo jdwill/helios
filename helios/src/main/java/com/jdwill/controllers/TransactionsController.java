@@ -3,6 +3,8 @@ package com.jdwill.controllers;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.jdwill.components.TransactionsProcessor;
 import com.jdwill.models.CommonArguments;
 import com.jdwill.models.Transaction;
 import com.jdwill.models.TransactionsResponse;
@@ -26,7 +29,9 @@ import com.jdwill.models.TransactionsResponse;
  */
 @RestController
 public class TransactionsController {
-	String url = "https://2016.api.levelmoney.com/api/v2/core/get-all-transactions";
+	@Autowired
+	TransactionsProcessor processor;
+	Logger log = Logger.getLogger(TransactionsController.class);
 
 	/**
 	 * Returns all a users transactions
@@ -35,23 +40,15 @@ public class TransactionsController {
 	 * @throws JsonProcessingException
 	 */
 	@RequestMapping("/getAllTransactions")
-	public List<Transaction> getAllTransactions(RestTemplate restTemplate) throws JsonProcessingException {
-		//TODO Convert console out statements to Log outputs.
-		System.out.println("TransactionsController.getAllTransactions() called...");
-		CommonArguments request = new CommonArguments();
-		System.out.println("Evaluating request object:");
-		System.out.println(request.toString() + "\n");
-		//Use Jackson marshaling to get a String representation of the JSON.
-		ObjectMapper mapper = new ObjectMapper();
-	    mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-	    String json = mapper.writeValueAsString(request);
-	    //Add the required HTTP headers
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		HttpEntity<String> entity = new HttpEntity<String>(json, headers);
-		ResponseEntity<TransactionsResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, TransactionsResponse.class);
-		System.err.println(response.getBody().getTransactions().get(0).toString());
-		return response.getBody().getTransactions();
+	public List<Transaction> getAllTransactions(RestTemplate restTemplate) {
+		log.info("TransactionsController.getAllTransactions() requested");
+		return processor.retrieveAllTransactions(restTemplate);
+	}
+	
+	@RequestMapping("/getIncomeAndExpensesSummary")
+	public List getIncomeAndExpensesSummary(RestTemplate restTemplate) {
+		log.info("TransactionsController.getIncomAndExpensesSummary() requested");
+		List<Transaction> transactions = processor.retrieveAllTransactions(restTemplate);
+		return null;
 	}
 }
