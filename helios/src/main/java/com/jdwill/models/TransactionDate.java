@@ -3,12 +3,8 @@ package com.jdwill.models;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-/**
- * A model of a user's individual transaction.
- * @author Jason Williams
- *
- */
-public class Transaction {
+
+public class TransactionDate {
 	@JsonProperty("transaction-id")
 	private String transaction_id;
 	@JsonProperty("account-id")
@@ -19,7 +15,7 @@ public class Transaction {
 	@JsonProperty("is-pending")
 	private String is_pending;
 	@JsonProperty("transaction-time")
-	private String transaction_time;
+	private Date transaction_time;
 	private Double amount;
 	@JsonProperty("previous-transaction-id")
 	private String previous_transaction_id;
@@ -33,12 +29,12 @@ public class Transaction {
 	@JsonProperty("clear-date")
 	private Double clear_date;
 	
-	public Transaction() {
+	public TransactionDate() {
 	}
-	public Transaction(String transaction_id, String account_id, String raw_merchant, 
-			String merchant, String is_pending, String transaction_time, Double amount,
-			String previous_transaction_id, String categorization, String memo_only_for_testing,
-			Double clear_date) {
+	public TransactionDate(String transaction_id, String account_id, String raw_merchant, 
+							String merchant, String is_pending, Date transaction_time, Double amount,
+							String previous_transaction_id, String categorization, String memo_only_for_testing,
+							Double clear_date) {
 		this.transaction_id = transaction_id;
 		this.account_id = account_id;
 		this.raw_merchant = raw_merchant;
@@ -82,10 +78,10 @@ public class Transaction {
 	public void setIs_pending(String is_pending) {
 		this.is_pending = is_pending;
 	}
-	public String getTransaction_time() {
+	public Date getTransaction_time() {
 		return transaction_time;
 	}
-	public void setTransaction_time(String transaction_time) {
+	public void setTransaction_time(Date transaction_time) {
 		this.transaction_time = transaction_time;
 	}
 	public Double getAmount() {
@@ -151,7 +147,7 @@ public class Transaction {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Transaction other = (Transaction) obj;
+		TransactionDate other = (TransactionDate) obj;
 		if (account_id == null) {
 			if (other.account_id != null)
 				return false;
@@ -216,7 +212,7 @@ public class Transaction {
 	}
 	@Override
 	public String toString() {
-		return "Transaction [transaction_id=" + transaction_id + ", account_id=" + account_id + ", raw_merchant="
+		return "TransactionDate [transaction_id=" + transaction_id + ", account_id=" + account_id + ", raw_merchant="
 				+ raw_merchant + ", merchant=" + merchant + ", is_pending=" + is_pending + ", transaction_time="
 				+ transaction_time + ", amount=" + amount + ", previous_transaction_id=" + previous_transaction_id
 				+ ", categorization=" + categorization + ", memo_only_for_testing=" + memo_only_for_testing

@@ -25,7 +25,10 @@ import com.jdwill.models.CommonArguments;
 import com.jdwill.models.IncomeAndExpenseStrings;
 import com.jdwill.models.IncomeAndExpenseSummary;
 import com.jdwill.models.IncomesAndExpensesByMonth;
+import com.jdwill.models.IncomesAndExpensesNoCC;
+import com.jdwill.models.MinimumTransactionData;
 import com.jdwill.models.Transaction;
+import com.jdwill.models.TransactionDate;
 import com.jdwill.models.TransactionsResponse;
 import com.jdwill.utilities.SortingUtilities;
 
@@ -41,7 +44,7 @@ public class TransactionsController {
 	Logger log = Logger.getLogger(TransactionsController.class);
 
 	/**
-	 * Returns all a user's transactions
+	 * Returns all a user's transactions.
 	 * @param restTemplate	A Spring RestTemplate injected by Spring.
 	 * @return				A list of the user's transactions.
 	 * @throws JsonProcessingException
@@ -53,9 +56,9 @@ public class TransactionsController {
 	}
 	
 	/**
-	 * Returns a summary of the user's income and expenses organized by month
+	 * Returns a summary of the user's income and expenses organized by month.
 	 * @param restTemplate	A Spring RestTemplate injected by Spring.
-	 * @return				A JSON representation of the user's expenses 
+	 * @return				A JSON representation of the user's income and expenses 
 	 * 						in the form {yyyy-MM: {spent: $nnnn.nn, income: $nnnn.nn}}.
 	 */
 	@RequestMapping("/getIncomeAndExpensesSummary")
@@ -80,8 +83,8 @@ public class TransactionsController {
 	/**
 	 * Returns a summary of the user's income and expenses organized by month
 	 * AND excludes donut purchases... obviously.
-	 * @param restTemplate	A Spring RestTemplate injected by Spring
-	 * @return				A JSON representation of the user's expenses
+	 * @param restTemplate	A Spring RestTemplate injected by Spring.
+	 * @return				A JSON representation of the user's income and expenses
 	 * 						excluding donut purchases in the form
 	 * 						{yyyy-MM: {spent: $nnnn.nn, income: $nnnn.nn}}.
 	 */
@@ -106,11 +109,19 @@ public class TransactionsController {
 		return incomesAndExpensesByMonth;
 	}
 	
+	/**
+	 * Returns a summary of the user's income and expenses organized by month
+	 * with predictions for the current month.
+	 * @param restTemplate	A Spring RestTemplate injected by Spring.
+	 * @return				A JSON representation of the user's income and expenses
+	 * 						excluding donut purchases in the form
+	 * 						{yyyy-MM: {spent: $nnnn.nn, income: $nnnn.nn}}.
+	 */
 	@RequestMapping("/seeCrystalBall")
 	public IncomesAndExpensesByMonth seeCrystalBall(RestTemplate restTemplate) {
 		log.info("TransactionsController.seeCrystalBall() requested");
 		//Get the predicted transactions.
-		List<Transaction> crystalBallTransactions = processor.seeCrystalBall(restTemplate, 2017, 04);
+		List<Transaction> crystalBallTransactions = processor.seeCrystalBall(restTemplate, SortingUtilities.getYear(), SortingUtilities.getMonth());
 		//Get the past transactions.
 		List<Transaction> historicalTransactions = processor.retrieveAllTransactions(restTemplate);
 		//Add the two Lists together
@@ -129,5 +140,45 @@ public class TransactionsController {
 		IncomesAndExpensesByMonth incomesAndExpensesByMonth = new IncomesAndExpensesByMonth();
 		incomesAndExpensesByMonth.setIncomesAndExpensesByMonth(stringifiedMonthlyIncomesAndExpenses);
 		return incomesAndExpensesByMonth;
+	}
+	
+	/**
+	 * Returns a list of all credit card payment transactions and a summary of the user's 
+	 * income and expenses organized by month with credit card payments excluded.
+	 * @param restTemplate	A Spring RestTemplate injected by Spring.
+	 * @return				A JSON representation of the user's credit card payments
+	 * 						and a summary of the user's income and expenses
+	 * 						excluding credit card payments in the form
+	 * 						{excluded-credit-card-payments: [{ merchant: "",
+	 * 						amount: nnnnnnn, categorization: "", transaction-id: "",
+	 * 						transaction-time: ""}], 
+	 * 						{yyyy-MM: {spent: $nnnn.nn, income: $nnnn.nn}}.
+	 */
+	@RequestMapping("/ignoreCreditCardPayments")
+	public IncomesAndExpensesNoCC ignoreCreditCardPayments(RestTemplate restTemplate) {
+		log.info("TransactionsController.ignoreCreditCardPayments() requested");
+		//Get all the transactions.
+		List<Transaction> transactions = processor.retrieveAllTransactions(restTemplate);
+		//Filter out CC payments
+		List<TransactionDate> creditCardPaymentTransactionDates = SortingUtilities.getCreditCardPayments(transactions);
+		//Convert to List<Transaction>
+		List<Transaction> creditCardPaymentTransactions = SortingUtilities.revertTransactionType(creditCardPaymentTransactionDates);
+		//Remove the credit card payments from the transactions
+		transactions.removeAll(creditCardPaymentTransactions);
+		//Reduce the credit card payments list to a more presentable form
+		List<MinimumTransactionData> miniTransactions = SortingUtilities.minimizeTransactionList(creditCardPaymentTransactions);
+		//Sort by month and income/expense type.
+		Map<YearMonth, IncomeAndExpenseSummary> monthlyIncomesAndExpenses = processor.calculateMonthlyIncomesAndExpenses(transactions);
+		//Calculate the user's average monthly income and expenses.
+		IncomeAndExpenseSummary averageIncomeAndExpense = processor.calculateAverageIncomeAndExpenses(monthlyIncomesAndExpenses);
+		//Convert the data types to a more presentable form.
+		Map<String, IncomeAndExpenseStrings> stringifiedMonthlyIncomesAndExpenses = processor.convertIncomeAndExpenseMap(monthlyIncomesAndExpenses);
+		//Add the average income and expense.
+		stringifiedMonthlyIncomesAndExpenses = processor.addAverageMonthlyIncomeAndExpense(stringifiedMonthlyIncomesAndExpenses, averageIncomeAndExpense);
+		stringifiedMonthlyIncomesAndExpenses = SortingUtilities.sortIncomesAndExpensesMap(stringifiedMonthlyIncomesAndExpenses);
+		IncomesAndExpensesNoCC incomesAndExpensesNoCC = new IncomesAndExpensesNoCC();
+		incomesAndExpensesNoCC.setMonthlyIncomesAndExpenses(stringifiedMonthlyIncomesAndExpenses);
+		incomesAndExpensesNoCC.setExcluded_credit_card_payments(miniTransactions);
+		return incomesAndExpensesNoCC;
 	}
 }
