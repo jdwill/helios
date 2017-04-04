@@ -1,0 +1,9 @@
+.header {
+  height: 10vh;
+  overflow: auto;
+}
+
+.section {
+  height: 90vh;
+  overflow: auto;
+}

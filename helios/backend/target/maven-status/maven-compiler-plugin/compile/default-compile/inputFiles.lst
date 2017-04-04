@@ -1,0 +1,15 @@
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/CrystalBallArguments.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/IncomesAndExpensesByMonth.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/Transaction.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/controllers/TransactionsController.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/IncomeAndExpenseStrings.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/CommonArguments.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/utilities/SortingUtilities.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/IncomesAndExpensesNoCC.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/TransactionsResponse.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/components/TransactionsProcessorImpl.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/components/TransactionsProcessor.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/configuration/Application.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/MinimumTransactionData.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/IncomeAndExpenseSummary.java
+/Users/jdwill79/git/helios/backend/src/main/java/com/jdwill/models/TransactionDate.java

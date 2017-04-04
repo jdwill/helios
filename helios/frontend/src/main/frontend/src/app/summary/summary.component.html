@@ -1,0 +1,17 @@
+<div class="section" id="summary">
+  <div class="jumbotron">
+    <h1>{{componentName}}</h1>
+  </div>
+  <ul *ngIf="summaries">
+    <li *ngFor='let summary of summaries | value:"key":true'>
+      <dl>
+        <dt>Date:</dt>
+        <dd>{{summary.k}}</dd>
+        <dt>Spent:</dt>
+        <dd>{{summary.spent}}</dd>
+        <dt>Income:</dt>
+        <dd>{{summary.income}}</dd>
+      </dl>
+    </li>
+  </ul>
+</div>
